@@ -1,9 +1,10 @@
 import os
 import sys
+import math
 
 import numpy as np
 import defaultWaveModules as wm
-  
+
 # Domain and mesh
 depthFactor=4.0#16.0  # ...TODO: remove depthFactor after debugging
 L = (10.0,
@@ -16,7 +17,7 @@ nu_0  = 1.004e-6
 
 # Air
 rho_1 = 1.205
-nu_1  = 1.500e-5 
+nu_1  = 1.500e-5
 
 # Gravity
 g = [0.0,0.0,-9.8]
@@ -26,7 +27,7 @@ inflowVelocityMean = (0.0,0.0,0.0)
 
 regime = 30.0 # if regime > 25 ==> shallow water, < 4 ==> deep water, between ==> finite depth
 waveLength = regime*inflowHeightMean/depthFactor # xSponge
-k=(2.0*pi/waveLength,0.0,0.0)
+k=(2.0*math.pi/waveLength,0.0,0.0)
 # NOTE: For Shallow Water Limit:  h < waveLength/25 ==> omega ~ sqrt(g*k^2*h) ~ 2*pi/period (no dispersion)
 #       For Deep Water Limit:     h > waveLength/4  ==> omega ~ sqrt(g*k)
 #       For Finite Depth: waveLength/25 < h < waveLength/4 ==> omega = sqrt(g*k*tanh(k*h))
@@ -40,12 +41,12 @@ else:
     omega = np.sqrt(-g[2]*k[0]*np.tanh(k[0]*inflowHeightMean))
     df_dk = -g[2]*( np.tanh(k[0]*inflowHeightMean) + k[0]*inflowHeightMean/np.cosh(k[0]*inflowHeightMean)**2 )
 
-# Setting desired level on nonlinearity: 
+# Setting desired level on nonlinearity:
 # ... epsilon ~ 0.1 ==> weakly nonlinear, epsilon ~ 0.5 ==> highly nonlinear
 epsilon = 0.1 # 0.01,0.02,0.05,0.1,0.15,0.2,0.4 # wave steepness
-factor = epsilon*regime/(2*np.pi*depthFactor) # factor == amplitude/depth 
+factor = epsilon*regime/(2*np.pi*depthFactor) # factor == amplitude/depth
 amplitude = inflowHeightMean*factor
-period = 2.0*pi/omega
+period = 2.0*math.pi/omega
 
 # Group Velocity ==> d/dk{omega} = f'(k)/(2*omega), where f'(k)=d/dk{omega(k)^2}
 groupVelocity = df_dk / (2.0*omega)
@@ -55,10 +56,10 @@ randomPhase = False
 
 ################
 # DEBUGGING
-print "WAVE STEEPNESS IS: ", epsilon
-print "AMPLITUDE IS: ", amplitude
-print "GROUP SPPED IS: ", groupVelocity
-print "WAVELENGTH IS: ", waveLength
+print("WAVE STEEPNESS IS: ", epsilon)
+print("AMPLITUDE IS: ", amplitude)
+print("GROUP SPPED IS: ", groupVelocity)
+print("WAVELENGTH IS: ", waveLength)
 #sys.exit()
 ##############
 
@@ -131,9 +132,9 @@ def wavePhi(x,t):
 
 def wavePhi_init(x,t):
     return x[2] - inflowHeightMean # mean/flat initial surface profile
-    # CEK original: return wavePhi(x,t) # interface is initialized at t=0 (not flat) 
+    # CEK original: return wavePhi(x,t) # interface is initialized at t=0 (not flat)
 
 # Computation Time for Wave(s) to return to wave maker (based on groupVelocity)
-# ...TODO: remove debugFactor when done debugging 
+# ...TODO: remove debugFactor when done debugging
 T=2*period#3.00
-print "Total Time of Computation is: ",T
+print("Total Time of Computation is: ",T)
